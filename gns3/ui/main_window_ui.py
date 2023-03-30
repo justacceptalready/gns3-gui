@@ -58,6 +58,20 @@ class Ui_MainWindow(object):
         self.uiHelpMenu.setObjectName("uiHelpMenu")
         self.uiViewMenu = QtWidgets.QMenu(self.uiMenuBar)
         self.uiViewMenu.setObjectName("uiViewMenu")
+
+        #test code
+        self.uiCalculateMenu = QtWidgets.QMenu(self.uiMenuBar)
+        self.uiCalculateMenu.setObjectName("uiCalculateMenu")
+        self.uiRTTAction = QtWidgets.QAction(MainWindow)
+        #self.uiCalculateMenu.addAction("Round Trip Time")
+        icon35 = QtGui.QIcon()
+        icon35.addPixmap(QtGui.QPixmap(":/icons/toolbar/help.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.uiRTTAction.setIcon(icon35)
+        self.uiRTTAction.setObjectName("uiRTTAction")
+        self.uiRTTAction.setMenuRole(QtWidgets.QAction.NoRole)
+        self.uiCalculateMenu.addAction(self.uiRTTAction)
+        
+
         self.uiDocksMenu = QtWidgets.QMenu(self.uiViewMenu)
         self.uiDocksMenu.setObjectName("uiDocksMenu")
         self.uiControlMenu = QtWidgets.QMenu(self.uiMenuBar)
@@ -521,6 +535,10 @@ class Ui_MainWindow(object):
         self.uiMenuBar.addAction(self.uiAnnotateMenu.menuAction())
         self.uiMenuBar.addAction(self.uiToolsMenu.menuAction())
         self.uiMenuBar.addAction(self.uiHelpMenu.menuAction())
+
+        #test code
+        self.uiMenuBar.addAction(self.uiCalculateMenu.menuAction())
+
         self.uiGeneralToolBar.addAction(self.uiNewProjectAction)
         self.uiGeneralToolBar.addAction(self.uiOpenProjectAction)
         self.uiBrowsersToolBar.addAction(self.uiBrowseRoutersAction)
@@ -562,10 +580,21 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
+
+        
+
+
         self.uiEditMenu.setTitle(_translate("MainWindow", "&Edit"))
         self.uiFileMenu.setTitle(_translate("MainWindow", "&File"))
         self.uiHelpMenu.setTitle(_translate("MainWindow", "&Help"))
         self.uiViewMenu.setTitle(_translate("MainWindow", "&View"))
+
+        #test code
+        self.uiCalculateMenu.setTitle(_translate("MainWindow", "&Calculate"))
+        self.uiRTTAction.setText(_translate("MainWindow", "&Round Trip Time"))
+        self.uiRTTAction.setToolTip(_translate("MainWindow", "Round Trip Time"))
+        self.uiRTTAction.setStatusTip(_translate("MainWindow", "Round Trip Time"))
+
         self.uiDocksMenu.setTitle(_translate("MainWindow", "Docks"))
         self.uiControlMenu.setTitle(_translate("MainWindow", "Control"))
         self.uiAnnotateMenu.setTitle(_translate("MainWindow", "Annotate"))
