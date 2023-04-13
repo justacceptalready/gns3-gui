@@ -18,6 +18,11 @@
 from ..qt import QtWidgets
 from ..version import __version__
 from ..ui.rtt_dialog_ui import Ui_RTTDialog
+from gns3.qt import QtCore, QtGui, QtWidgets
+from gns3.dialogs.symbol_selection_dialog import SymbolSelectionDialog
+from ..dialogs.node_properties_dialog import ConfigurationError
+from gns3.controller import Controller
+from gns3.node import Node
 
 
 class RTTDialog(QtWidgets.QDialog, Ui_RTTDialog):
@@ -33,6 +38,7 @@ class RTTDialog(QtWidgets.QDialog, Ui_RTTDialog):
         self._node = None
         self._ports = []
         self._interfaces = []
+        self._connections = []
 
         # dynamically add the current version number
         text = self.uiRTTTextLabel.text()
@@ -40,12 +46,15 @@ class RTTDialog(QtWidgets.QDialog, Ui_RTTDialog):
         self.uiRTTTextLabel.setText(text)
 
         # connect  slots
-        self.uiComboBox.currentIndexChanged.connect(self._SelectedSlot)
+        #self.uiComboBox.currentIndexChanged.connect(self._SelectedSlot)
         self.uiListWidget.itemSelectionChanged.connect(self._ChangedSlot)
-        self.uiAddPushButton.clicked.connect(self._AddSlot)
-        self.uiAddAllPushButton.clicked.connect(self._AddAllSlot)
-        self.uiRefreshPushButton.clicked.connect(self._RefreshSlot)
+        #self.uiAddPushButton.clicked.connect(self._AddSlot)
+        #self.uiAddAllPushButton.clicked.connect(self._AddAllSlot)
+        #self.uiRefreshPushButton.clicked.connect(self._RefreshSlot)
         self.uiDeletePushButton.clicked.connect(self._DeleteSlot)
+
+        self.uiAddConnectionPushButton.clicked.connect(self._AddConnectionSlot)
+
 
     def _SelectedSlot(self, index):
             """
@@ -54,7 +63,7 @@ class RTTDialog(QtWidgets.QDialog, Ui_RTTDialog):
             :param index: ignored
             """
 
-            self.uiLineEdit.setText(self.uiComboBox.currentText())
+            #self.uiLineEdit.setText(self.uiComboBox.currentText())
     
     def _ChangedSlot(self):
         """
@@ -64,53 +73,84 @@ class RTTDialog(QtWidgets.QDialog, Ui_RTTDialog):
         item = self.uiListWidget.currentItem()
         if item:
             self.uiDeletePushButton.setEnabled(True)
-            self.uiLineEdit.setText(item.text())
+            #self.uiLineEdit.setText(item.text())
         else:
             self.uiDeletePushButton.setEnabled(False)
 
-    def _AddSlot(self, interface=None):
-        """
-        Adds a new  interface.
-        """
+    #def _AddSlot(self, interface=None):
+    #    """
+    #    Adds a new  interface.
+    #    """
+#
+    #    if not interface:
+    #        interface = self.uiLineEdit.text()
+    #    if interface:
+    #        for port in self._ports:
+    #            if port["name"] == interface and port["type"] == "tap":
+    #                return
+    #        self.uiListWidget.addItem(interface)
+    #        self._ports.append({"name": interface,
+    #                            "port_number": len(self._ports),
+    #                            "type": "tap",
+    #                            "interface": interface})
+    #        index = self.uiComboBox.findText(interface)
+    #        if index != -1:
+    #            self.uiComboBox.removeItem(index)
+    #    print(self._ports)
 
-        if not interface:
-            interface = self.uiLineEdit.text()
-        if interface:
-            for port in self._ports:
-                if port["name"] == interface and port["type"] == "tap":
+    def _AddConnectionSlot(self, name1=None, name2=None, distance=None, speed=None):
+        if not name1:
+            name1 = self.uiNameLineEdit.text()
+        if not name2:
+            name2 = self.uiNameLine2Edit.text()
+        if not distance:
+            distance = self.uiDistanceLineEdit.text()
+        if not speed:
+            speed = self.uiSpeedLineEdit.text()
+
+        if name1 and name2:
+            for connection in self._connections:
+                if connection["name 1"] == name1 and connection["name 2"] == name2:
                     return
-            self.uiListWidget.addItem(interface)
-            self._ports.append({"name": interface,
-                                "port_number": len(self._ports),
-                                "type": "tap",
-                                "interface": interface})
-            index = self.uiComboBox.findText(interface)
-            if index != -1:
-                self.uiComboBox.removeItem(index)
-        print(self._ports)
+                if connection["name 1"] == name2 and connection["name 2"] == name1:
+                    return
+                if connection["name 1"] == name1 or connection["name 1"] == name2:
+                    return
 
-    def _AddAllSlot(self):
-        """
-        Adds all  interfaces
-        """
+        if name1 and name2 and distance and speed:
+            self.uiListWidget.addItem(name1 + "\t" + name2 + "\t" + distance + "\t"  + speed)
+            self._connections.append({"name 1": name1,
+                                "name 2": name2,
+                                "distance": distance,
+                                "speed": speed})
+        print(self._connections)
 
-        for index in range(0, self.uiComboBox.count()):
-            interface = self.uiComboBox.itemText(index)
-            self._AddSlot(interface)
 
-    def _RefreshSlot(self):
-        """
-        Refresh all  interfaces.
-        """
 
-        if self._node:
-            self._node.update({}, force=True)
-            self._node.updated_signal.connect(self._refreshInterfaces)
+
+    #def _AddAllSlot(self):
+    #    """
+    #    Adds all  interfaces
+    #    """
+#
+    #    for index in range(0, self.uiComboBox.count()):
+    #        interface = self.uiComboBox.itemText(index)
+    #        #self._AddSlot(interface)
+
+    #def _RefreshSlot(self):
+    #    """
+    #    Refresh all  interfaces.
+    #    """
+#
+    #    if self._node:
+    #        self._node.update({}, force=True)
+    #        self._node.updated_signal.connect(self._refreshInterfaces)
 
     def _DeleteSlot(self):
         """
         Deletes a  interface.
         """
+
 
         if self._node:
             for item in self.uiListWidget.selectedItems():
@@ -129,5 +169,7 @@ class RTTDialog(QtWidgets.QDialog, Ui_RTTDialog):
                     self.uiListWidget.takeItem(self.uiListWidget.row(item))
                     for interface in self._interfaces:
                         if interface["name"] == port["name"] and interface["type"] == "tap":
-                            self.uiComboBox.addItem(interface["name"])
+                            print()
+                            #self.uiComboBox.addItem(interface["name"])
                     break
+
