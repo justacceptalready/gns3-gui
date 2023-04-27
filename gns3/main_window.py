@@ -32,6 +32,7 @@ from .controller import Controller
 from .node import Node
 from .ui.main_window_ui import Ui_MainWindow
 from .style import Style
+from .dialogs.rtt_dialog import RTTDialog
 from .dialogs.about_dialog import AboutDialog
 from .dialogs.project_dialog import ProjectDialog
 from .dialogs.preferences_dialog import PreferencesDialog
@@ -258,6 +259,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.uiDrawEllipseAction.triggered.connect(self._drawEllipseActionSlot)
         self.uiDrawLineAction.triggered.connect(self._drawLineActionSlot)
         self.uiEditReadmeAction.triggered.connect(self._editReadmeActionSlot)
+
+        # calculate menu connections
+        self.uiRTTAction.triggered.connect(self._RTTActionSlot)
+        
 
         # help menu connections
         self.uiOnlineHelpAction.triggered.connect(self._onlineHelpActionSlot)
@@ -980,6 +985,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """
 
         QtWidgets.QMessageBox.aboutQt(self)
+
+    def _RTTActionSlot(self):
+        """
+        Slot to display the RTT dialog.
+        """
+
+        dialog = RTTDialog(self)
+        dialog.show()
+        dialog.exec_()
 
     def _aboutActionSlot(self):
         """
