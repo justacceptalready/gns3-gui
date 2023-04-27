@@ -36,6 +36,7 @@ class RTTDialog(QtWidgets.QDialog, Ui_RTTDialog):
         super().__init__(parent)
         self.setupUi(self)
         self._node = None
+        self.sum = 0;
         self._ports = []
         self._interfaces = []
         self._connections = []
@@ -45,14 +46,9 @@ class RTTDialog(QtWidgets.QDialog, Ui_RTTDialog):
         text = text.replace("%VERSION%", __version__)
         self.uiRTTTextLabel.setText(text)
 
-        # connect  slots
-        #self.uiComboBox.currentIndexChanged.connect(self._SelectedSlot)
         self.uiListWidget.itemSelectionChanged.connect(self._ChangedSlot)
-        #self.uiAddPushButton.clicked.connect(self._AddSlot)
-        #self.uiAddAllPushButton.clicked.connect(self._AddAllSlot)
-        #self.uiRefreshPushButton.clicked.connect(self._RefreshSlot)
-        self.uiDeletePushButton.clicked.connect(self._DeleteSlot)
-
+        #self.uiDeletePushButton.clicked.connect(self._DeleteSlot)
+        self.uiCalculatePushButton.clicked.connect(self._CalculateSlot)
         self.uiAddConnectionPushButton.clicked.connect(self._AddConnectionSlot)
 
 
@@ -71,32 +67,14 @@ class RTTDialog(QtWidgets.QDialog, Ui_RTTDialog):
         """
 
         item = self.uiListWidget.currentItem()
-        if item:
-            self.uiDeletePushButton.setEnabled(True)
+        #if item:
+            #self.uiDeletePushButton.setEnabled(True)
             #self.uiLineEdit.setText(item.text())
-        else:
-            self.uiDeletePushButton.setEnabled(False)
+            
+        #else:
+            #self.uiDeletePushButton.setEnabled(False)
 
-    #def _AddSlot(self, interface=None):
-    #    """
-    #    Adds a new  interface.
-    #    """
-#
-    #    if not interface:
-    #        interface = self.uiLineEdit.text()
-    #    if interface:
-    #        for port in self._ports:
-    #            if port["name"] == interface and port["type"] == "tap":
-    #                return
-    #        self.uiListWidget.addItem(interface)
-    #        self._ports.append({"name": interface,
-    #                            "port_number": len(self._ports),
-    #                            "type": "tap",
-    #                            "interface": interface})
-    #        index = self.uiComboBox.findText(interface)
-    #        if index != -1:
-    #            self.uiComboBox.removeItem(index)
-    #    print(self._ports)
+
 
     def _AddConnectionSlot(self, name1=None, name2=None, distance=None, speed=None):
         if not name1:
@@ -123,53 +101,40 @@ class RTTDialog(QtWidgets.QDialog, Ui_RTTDialog):
                                 "name 2": name2,
                                 "distance": distance,
                                 "speed": speed})
-        print(self._connections)
+
+    def _CalculateSlot(self):
+    
+    
+        for connection in self._connections:
+            self.sum += 2 * float(connection["distance"]) / float(connection["speed"])
+
+        print(f"Round Trip Time = {self.sum}")
 
 
-
-
-    #def _AddAllSlot(self):
+    #def _DeleteSlot(self):
     #    """
-    #    Adds all  interfaces
+    #    Deletes a  interface.
     #    """
 #
-    #    for index in range(0, self.uiComboBox.count()):
-    #        interface = self.uiComboBox.itemText(index)
-    #        #self._AddSlot(interface)
-
-    #def _RefreshSlot(self):
-    #    """
-    #    Refresh all  interfaces.
-    #    """
 #
     #    if self._node:
-    #        self._node.update({}, force=True)
-    #        self._node.updated_signal.connect(self._refreshInterfaces)
-
-    def _DeleteSlot(self):
-        """
-        Deletes a  interface.
-        """
-
-
-        if self._node:
-            for item in self.uiListWidget.selectedItems():
-                interface = item.text()
-                # check we can delete that interface
-                for node_port in self._node.ports():
-                    if node_port.name() == interface and not node_port.isFree():
-                        QtWidgets.QMessageBox.critical(self, self._node.name(), "A link is connected to {}, please remove it first".format(interface))
-                        return
-
-        for item in self.uiListWidget.selectedItems():
-            interface = item.text()
-            for port in self._ports.copy():
-                if port["name"] == interface:
-                    self._ports.remove(port)
-                    self.uiListWidget.takeItem(self.uiListWidget.row(item))
-                    for interface in self._interfaces:
-                        if interface["name"] == port["name"] and interface["type"] == "tap":
-                            print()
-                            #self.uiComboBox.addItem(interface["name"])
-                    break
-
+    #        for item in self.uiListWidget.selectedItems():
+    #            interface = item.text()
+    #            # check we can delete that interface
+    #            for node_port in self._node.ports():
+    #                if node_port.name() == interface and not node_port.isFree():
+    #                    QtWidgets.QMessageBox.critical(self, self._node.name(), "A link is connected to {}, please remove it first".format(interface))
+    #                    return
+#
+    #    for item in self.uiListWidget.selectedItems():
+    #        interface = item.text()
+    #        for port in self._ports.copy():
+    #            if port["name"] == interface:
+    #                self._ports.remove(port)
+    #                self.uiListWidget.takeItem(self.uiListWidget.row(item))
+    #                for interface in self._interfaces:
+    #                    if interface["name"] == port["name"] and interface["type"] == "tap":
+    #                        print()
+    #                        #self.uiComboBox.addItem(interface["name"])
+    #                break
+#
